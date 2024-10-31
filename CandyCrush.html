@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proiectul - Candy Crush</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(11, 50px);
+            grid-template-rows: repeat(11, 50px);
+            gap: 5px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .cell {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            border: 1px solid #ccc;
+        }
+
+        .red { background-color: red; }
+        .yellow { background-color: yellow; }
+        .green { background-color: green; }
+        .blue { background-color: blue; }
+    </style>
+</head>
+<body>
+<h1>Candy Crush</h1>
+<button onclick="pornesteJocul()">Porneste Jocul</button>
+
+<div id="game-board"></div>
+<div id="result"></div>
+
+<script>
+    const N = 11;
+    let tablaJoc = [];
+
+    function initTabla() {
+        tablaJoc = [];
+        for (let i = 0; i < N; i++) {
+            let row = [];
+            for (let j = 0; j < N; j++) {
+                const randomCandy = Math.floor(Math.random() * 4) + 1;
+                row.push(randomCandy);
+            }
+            tablaJoc.push(row);
+        }
+        renderTabla();
+    }
+
+    function renderTabla() {
+        const gameBoard = document.getElementById('game-board');
+        gameBoard.innerHTML = '';
+        for (let i = 0; i < N; i++) {
+            for (let j = 0; j < N; j++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                if (tablaJoc[i][j] === 1) cell.classList.add('red');
+                else if (tablaJoc[i][j] === 2) cell.classList.add('yellow');
+                else if (tablaJoc[i][j] === 3) cell.classList.add('green');
+                else if (tablaJoc[i][j] === 4) cell.classList.add('blue');
+                gameBoard.appendChild(cell);
+            }
+        }
+    }
+
+    function detecteazaFormatii() {
+        let pozitiiDeEliminat = new Set();
+        let punctaj = 0;
+
+        for (let i = 0; i < N; i++) {
+            for (let j = 0; j < N; j++) {
+                let culoare = tablaJoc[i][j];
+                if (culoare === 0) continue;
+
+                // Linie de 3 orizontală
+                if (j <= N - 3 && tablaJoc[i][j] === tablaJoc[i][j + 1] && tablaJoc[i][j] === tablaJoc[i][j + 2]) {
+                    pozitiiDeEliminat.add(`${i},${j}`);
+                    pozitiiDeEliminat.add(`${i},${j + 1}`);
+                    pozitiiDeEliminat.add(`${i},${j + 2}`);
+                    punctaj += 5;
+                }
+
+                // Linie de 4 orizontală
+                if (j <= N - 4 && tablaJoc[i][j] === tablaJoc[i][j + 1] && tablaJoc[i][j] === tablaJoc[i][j + 2] && tablaJoc[i][j] === tablaJoc[i][j + 3]) {
+                    pozitiiDeEliminat.add(`${i},${j}`);
+                    pozitiiDeEliminat.add(`${i},${j + 1}`);
+                    pozitiiDeEliminat.add(`${i},${j + 2}`);
+                    pozitiiDeEliminat.add(`${i},${j + 3}`);
+                    punctaj += 10;
+                }
+
+                // Linie de 5 orizontală
+                if (j <= N - 5 && tablaJoc[i][j] === tablaJoc[i][j + 1] && tablaJoc[i][j] === tablaJoc[i][j + 2] && tablaJoc[i][j] === tablaJoc[i][j + 3] && tablaJoc[i][j] === tablaJoc[i][j + 4]) {
+                    pozitiiDeEliminat.add(`${i},${j}`);
+                    pozitiiDeEliminat.add(`${i},${j + 1}`);
+                    pozitiiDeEliminat.add(`${i},${j + 2}`);
+                    pozitiiDeEliminat.add(`${i},${j + 3}`);
+                    pozitiiDeEliminat.add(`${i},${j + 4}`);
+                    punctaj += 50;
+                }
+
+                // Linie de 3 verticală
+                if (i <= N - 3 && tablaJoc[i][j] === tablaJoc[i + 1][j] && tablaJoc[i][j] === tablaJoc[i + 2][j]) {
+                    pozitiiDeEliminat.add(`${i},${j}`);
+                    pozitiiDeEliminat.add(`${i + 1},${j}`);
+                    pozitiiDeEliminat.add(`${i + 2},${j}`);
+                    punctaj += 5;
+                }
+
+                // Linie de 4 verticală
+                if (i <= N - 4 && tablaJoc[i][j] === tablaJoc[i + 1][j] && tablaJoc[i][j] === tablaJoc[i + 2][j] && tablaJoc[i][j] === tablaJoc[i + 3][j]) {
+                    pozitiiDeEliminat.add(`${i},${j}`);
+                    pozitiiDeEliminat.add(`${i + 1},${j}`);
+                    pozitiiDeEliminat.add(`${i + 2},${j}`);
+                    pozitiiDeEliminat.add(`${i + 3},${j}`);
+                    punctaj += 10;
+                }
+
+                // Linie de 5 verticală
+                if (i <= N - 5 && tablaJoc[i][j] === tablaJoc[i + 1][j] && tablaJoc[i][j] === tablaJoc[i + 2][j] && tablaJoc[i][j] === tablaJoc[i + 3][j] && tablaJoc[i][j] === tablaJoc[i + 4][j]) {
+                    pozitiiDeEliminat.add(`${i},${j}`);
+                    pozitiiDeEliminat.add(`${i + 1},${j}`);
+                    pozitiiDeEliminat.add(`${i + 2},${j}`);
+                    pozitiiDeEliminat.add(`${i + 3},${j}`);
+                    pozitiiDeEliminat.add(`${i + 4},${j}`);
+                    punctaj += 50;
+                }
+
+                // Formațiuni de tip "L"
+                if (j <= N - 3 && i <= N - 3) {
+                    if (tablaJoc[i][j] === tablaJoc[i + 1][j] && tablaJoc[i][j] === tablaJoc[i + 2][j] && tablaJoc[i][j] === tablaJoc[i][j + 1] && tablaJoc[i][j] === tablaJoc[i][j + 2]) {
+                        pozitiiDeEliminat.add(`${i},${j}`);
+                        pozitiiDeEliminat.add(`${i + 1},${j}`);
+                        pozitiiDeEliminat.add(`${i + 2},${j}`);
+                        pozitiiDeEliminat.add(`${i},${j + 1}`);
+                        pozitiiDeEliminat.add(`${i},${j + 2}`);
+                        punctaj += 20;
+                    }
+                }
+                // Formațiuni de tip "T" în toate direcțiile
+                if (i <= N - 3 && j >= 1 && j <= N - 2) {
+                    if (tablaJoc[i][j] === tablaJoc[i + 1][j] && tablaJoc[i][j] === tablaJoc[i + 2][j] && tablaJoc[i][j] === tablaJoc[i + 1][j - 1] && tablaJoc[i][j] === tablaJoc[i + 1][j + 1]) {
+                        pozitiiDeEliminat.add(`${i},${j}`);
+                        pozitiiDeEliminat.add(`${i + 1},${j}`);
+                        pozitiiDeEliminat.add(`${i + 2},${j}`);
+                        pozitiiDeEliminat.add(`${i + 1},${j - 1}`);
+                        pozitiiDeEliminat.add(`${i + 1},${j + 1}`);
+                        punctaj += 30;
+                    }
+                }
+            }
+        }
+
+        return { pozitiiDeEliminat: Array.from(pozitiiDeEliminat).map(str => str.split(',').map(Number)), punctaj };
+    }
+
+    function eliminaBomboane(pozitii) {
+        pozitii.forEach(([i, j]) => {
+            tablaJoc[i][j] = 0;
+        });
+        lasaBomboaneSaCada();
+    }
+
+    function lasaBomboaneSaCada() {
+        for (let j = 0; j < N; j++) {
+            let stack = [];
+            for (let i = N - 1; i >= 0; i--) {
+                if (tablaJoc[i][j] !== 0) stack.push(tablaJoc[i][j]);
+            }
+            for (let i = N - 1; i >= 0; i--) {
+                tablaJoc[i][j] = stack.length ? stack.pop() : Math.floor(Math.random() * 4) + 1;
+            }
+        }
+        renderTabla();
+    }
+
+    function procesareJoc() {
+        let scor = 0;
+        while (true) {
+            const { pozitiiDeEliminat, punctaj } = detecteazaFormatii();
+            if (pozitiiDeEliminat.length === 0) break;
+            eliminaBomboane(pozitiiDeEliminat);
+            scor += punctaj;
+        }
+        return scor;
+    }
+
+    function pornesteJocul() {
+        let totalPunctaj = 0;
+        let totalIteratii = 100;
+        let rezultatJocuri = "";
+
+        for (let i = 1; i <= totalIteratii; i++) {
+            initTabla();
+            let scorJoc = procesareJoc();
+            totalPunctaj += scorJoc;
+            rezultatJocuri += `<p>Jocul ${i}: Scor = ${scorJoc}</p>`;
+            if (totalPunctaj >= 10000) break;
+        }
+
+        document.getElementById('result').innerHTML = `
+            <h3>Rezultate Jocuri</h3>
+            <p>Total Jocuri: ${totalIteratii}</p>
+            <p>Punctaj total: ${totalPunctaj}</p>
+            <div>${rezultatJocuri}</div>
+        `;
+    }
+</script>
+</body>
+</html>
